@@ -1,0 +1,49 @@
+hw.txt
+
+First 12 (r,c) coordinates popped off the stack by the algorithm.
+PROBLEM 2
+1. (3,5)
+2. (3,6)
+3. (3,4)
+4. (2,4)
+5. (1,4)
+6. (1,3)
+7. (1,2)
+8. (1,1)
+9. (2,1)
+10. (3,3)
+11. (4,5)
+12. (5,5)
+
+
+PROBLEM 4
+1. (3,5)
+2. (4,5)
+3. (3,4)
+4. (3,6)
+5. (5,5)
+6. (3,3)
+7. (2,4)
+8. (6,5)
+9. (5,4)
+10. (1,4)
+11. (7,5)
+12. (5,3)
+
+Stacks have an algorithm in which they focus on the most recent path
+and continues on that path until there is no more options or the maze
+is completed. The maze coords covered end up looking like different
+routes that were taken chronologically as could be seen pictorially.
+In essence, stacks visit each cell that would build off of the last
+cell checked which generates an algorithm that goes down a rabbit hole
+until all options of that path are exhausted or a solution is found before
+the stack moves onto the next potential "cell path". This result is done
+by their push and top/pop functions that only take from the top of the
+"stack" as opposed to queue's "first come first serve" type of stack.
+
+Queues algorithm still is effective, but generates a checking system that
+is more radial and slowly expands away from the given starting point. Queues
+does not delay any one path like stacks, and is more effective if the given
+ending coords of the maze has a closer distance or parameter. Otherwise,
+stacks are sometimes more time efficient if the starting and ending coords of
+the maze are at far distances, assuming the stack ends up picking the right path.
