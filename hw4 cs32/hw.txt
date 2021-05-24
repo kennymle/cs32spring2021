@@ -1,0 +1,183 @@
+hw4
+
+2.
+The call to Set<Coord>::insert causes at least one compile error because the fucntion uses comparison operator "==" and "<="
+but the template only covers the basic one parameter typename such as int and string.
+For Coord, the operators to compare have not been defined in the class which causes a compile error despite the intention
+for the function to compare the row and column and give evaluation with what "<=" means for ordering and comparing coords. 
+
+
+4b.
+I can't solve this problem given the constraints in part a if we only had one-parameter listAll, and I need to implement
+it as a recurisve funciton because there would not be that extra measure or parameter that would tell the function where
+it was in the tree path. Thus, the function won't be able to print the complete path to itself and know what came before it.
+
+
+5a.
+Time complexity of this algorithm is O(N^3).
+Given the hasContacted function outputting true or false given two parameters of person i and person j, the function call would
+be of O(1) when making an if statement comparison call. Furthermore, each of the if statement in the algorithm contributes
+lower time complexity of O(1) from the simple comparison checking as opposed to the for loops which contributes time complexity of
+O(N) individually given that it goes from 0 to N. Due to the presence of 3 forloops being nested, the time complexity actually
+increases to O(N^3). The comments on the code reveals that the overall time complexity would consequently be O(N^3).
+
+	const int N = some value;
+	bool hasContacted[N][N];
+	...
+	int numIntermediaries[N][N];
+	for (int i = 0; i < N; i++)			//O(N*N^2) = O(N^3)
+	{									//O(N^2)
+	    numIntermediaries[i][i] = -1;  
+				           
+	    for (int j = 0; j < N; j++)			//O(N*N) = O(N^2)
+	    {									//O(N)
+	        if (i == j)							//O(1)
+	            continue;
+	        numIntermediaries[i][j] = 0;
+	        for (int k = 0; k < N; k++)		//O(N*1) = O(N)
+	        {								
+	            if (k == i  ||  k == j)					//O(1)
+	                continue;						
+		    if (hasContacted[i][k]  &&  hasContacted[k][j])		//O(1) + O(1) = O(2)
+	        	numIntermediaries[i][j]++;				//O(1)
+	        }
+	    }
+	}
+
+
+5b.
+Time complexity of this algorithm is O(N^3).
+In the second nested forloop, the parameters was changed for int j such that loop limit is now i, not N. However, that forloop will still
+be called about N times when int i eventually gets iterated to value of N-1. Thus, the second forloop is technically called on for (N-1)!
+times in the nested forloop. Although the tweak to the forloop would mean that there are less calls to through the loops, it is not enough to
+lower the time complexity from O(N^3). Additionally, the tweak to adding " numIntermediaries[j][i] = numIntermediaries[i][j];" is not impactful
+due to being O(1).
+
+
+
+	const int N = some value;
+	bool hasContacted[N][N];
+	...
+	int numIntermediaries[N][N];
+	for (int i = 0; i < N; i++)			//O(N*N^2) = O(N^3)
+	{									//O(N^2)
+	    numIntermediaries[i][i] = -1;  
+				           
+	    for (int j = 0; j < i; j++)			//O(N*(N-1)!) = O(N^2-N) = O(N^2); loop limit is now i, not N
+	    {									//O(N)
+	        if (i == j)							//O(1)
+	            continue;
+	        numIntermediaries[i][j] = 0;
+	        for (int k = 0; k < N; k++)		//O(N*1) = O(N)
+	        {								
+	            if (k == i  ||  k == j)					//O(1)
+	                continue;						
+		    if (hasContacted[i][k]  &&  hasContacted[k][j])		//O(1) + O(1) = O(2)
+	        	numIntermediaries[i][j]++;				//O(1)
+	        }
+		numIntermediaries[j][i] = numIntermediaries[i][j];		//O(1)
+	    }
+	}
+
+
+6a.
+Worst case time complexity is O(N^2)
+The forloop contributes O(N) time complexity. Inside the forloop, the functions of get and insert both contribute O(N) time complexity which are additive.
+Comments give further explanation. The sum result becomes O(N^2) for the function
+
+void unite(const Set& set1, const Set& set2, Set& result)	//O(N^2)
+{						
+    const Set* sp = &set2;		//O(1)
+    if (&result == &set1)		//O(1)
+    {
+        if (&result == &set2)		//O(1)
+                return;
+    }				
+    else if (&result == &set2)		//O(1)
+        sp = &set1;			//O(N)
+    else
+    {
+        result = set1;			//O(N)		
+        if (&set1 == &set2)		//O(1)
+            return;
+    }
+    for (int k = 0; k < sp->size(); k++)		//O(N*2N) = O(N^2)
+    {							//O(N+0.5N) = O(1.5N)
+        ItemType v;
+        sp->get(k, v);					//O(0.5N) worst case going through N/2 items
+        result.insert(v);				//O(N) worst case looking through all N elements in list when insert calls on findFirstAtMost function
+    }
+}
+
+
+6b.
+Time complexity is O(NlogN)
+Explanations and annotations below. O(4N + NlogN) would still be O(NlogN) since NlogN is more dominant than N for N > 10.
+
+void Set::unite(const Set& set1, const Set& set2)				//Overall max big O-> O(N + N + NlogN + N + N+ 3)
+{										//highest order magnitude: O(NlogN) since O(N) is smaller for N > 10
+    vector<ItemType> v;
+
+      // copy all items into v;
+    for (Node* p1 = set1.m_head->m_next; p1 != set1.m_head; p1 = p1->m_next)	//ranging from O(1) to O(N)
+        v.push_back(p1->m_value);
+    for (Node* p2 = set2.m_head->m_next; p2 != set2.m_head; p2 = p2->m_next)	//ranging from O(1) to O(N)
+        v.push_back(p2->m_value);
+
+      // sort v using an O(N log N) algorithm
+    sort(v.begin(), v.end());							//O(NlogN)
+
+      // delete result nodes (other than the dummy node)
+    while (m_head->m_next != m_head)						//ranging from O(1) to O(N)
+        doErase(m_head->m_next);						//O(1)
+
+      // copy unique items from v into result
+    for (size_t k = 0; k < v.size(); k++)					//O(N)
+    {
+        if (k == 0  ||  v[k] != v[k-1])  // add non-duplicates			//O(1)
+	    insertBefore(m_head, v[k]);						//O(1)
+    }
+
+      // v is destroyed when function returns
+}
+
+
+6c.
+Time complexity is O(N)
+All of the time complexity are not nested in each other. When summing up the time complexity, the highest magnitude still remains as O(N)
+and never reaches near O(N^2) or higher.
+
+void Set::unite(const Set& set1, const Set& set2)
+{
+    const Set* sp = &set2;
+    if (this == &set1)			//O(1)
+    {
+        if (this == &set2)		//O(1)
+                return;
+    }
+    else if (this == &set2)		//O(1)
+        sp = &set1;			//O(N)
+    else
+    {
+        *this = set1;			//O(N)
+        if (&set1 == &set2)		//O(1)
+            return;
+    }
+    Node* p1 = m_head->m_next;				
+    Node* p2 = sp->m_head->m_next;			
+    while (p1 != m_head  &&  p2 != sp->m_head)		//O(N) maximum
+    {
+        if (p1->m_value < p2->m_value)			//O(1)
+            p1 = p1->m_next;
+        else
+        {
+            if (p1->m_value > p2->m_value)		//O(1)
+                insertBefore(p1, p2->m_value);
+            else
+                p1 = p1->m_next;
+            p2 = p2->m_next;
+        }
+    }
+    for ( ; p2 != sp->m_head; p2 = p2->m_next)		//O(N) maximum
+        insertBefore(m_head, p2->m_value);		//O(1)
+}
